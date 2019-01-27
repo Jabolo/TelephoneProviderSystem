@@ -1,14 +1,29 @@
-﻿
-
-#include "pch.h"
-#include <iostream>
-#include <string>
+﻿#include "pch.h"
+#include "transaction.h"
+#include "user.h"
 
 using namespace std;
 void adminMenu();
 void userMenu();
+
+MYSQL db_name;
+MYSQL_RES *idZapytania; //przechowalnia wskaźnika na zapytanie
+MYSQL_ROW  wiersz; //przechowalnia pobranego wiersza
+MYSQL* db_conn;
+
 int main()
 {
+
+	db_conn = mysql_init(NULL);
+	if (!db_conn)
+		cout << "MySQL initialization failed! ";
+	db_conn = mysql_real_connect(db_conn, "127.0.0.1", "root", "", "cellphoneprovider", 0, NULL, 0);
+	if (!db_conn)
+		cout << "Connection Error! ";
+	else
+		cout << "Connected\n\n";
+
+
 	bool isCorrect = true, tryAgain;
 	string login, psswrd;
 	do {
@@ -32,8 +47,15 @@ int main()
 
 void adminMenu()
 {
+
+	transaction *x = new transaction();
+	int idUser;
+	int cellNumber;
+	string userName;
+	string psswrd;
+	int privileges;
+
 	cout << "WELCOME ADMIN !\n";
-	//Transaction *x = new Transaction();
 	int choice = 1;
 	while (choice)
 	{
@@ -50,6 +72,15 @@ void adminMenu()
 		case 1:
 		{
 			//add new user
+			cout << "Enter cell phone: ";
+			cin >> cellNumber;
+			cout << "Enter name: ";
+			cin >> userName;
+			cout << "Enter password: ";
+			cin >> psswrd;
+			cout << "Enter privileges: ";
+			cin >> privileges;
+			x->createUser(new user(cellNumber, userName, psswrd, privileges));
 			break;
 		}
 		case 2:
@@ -64,7 +95,6 @@ void adminMenu()
 			break;
 		}
 		}
-
 	}
 }
 

@@ -10,5 +10,13 @@
 #define PCH_H
 
 // TODO: w tym miejscu dodaj nagłówki, które mają być wstępnie kompilowane
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <cstdlib>
+#include <windows.h>
+#include <mysql.h>
+#include <iomanip>
 
 #endif //PCH_H
