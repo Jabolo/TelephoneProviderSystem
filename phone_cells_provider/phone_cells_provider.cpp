@@ -104,26 +104,32 @@ void adminMenu(user * userHandler)
 		{
 			//add new call
 			int opt; //opt = 1 pass id, opt 2= pass cellNembers
-			cout << "Enter 1 when passing ID;\nEnter 2 when passing cellNumbers;\nYour choice: ";
-			cin >> opt;
-			if (opt == 1)
-			{
-				cout << "Enter id-from: ";
-				cin >> from;
-				cout << "Enter id-to: ";
-				cin >> to;
-			}
-			else if (opt == 2)
-			{
-				cout << "Enter cellNumber-from: ";
-				cin >> from;
-				cout << "Enter cellNumber-to: ";
-				cin >> to;
-			}
-			cout << "Enter status: ";
-			cin >> status;
-			cout << "Enter duration: ";
-			cin >> duration;
+			do {
+				cout << "Enter 1 when passing ID;\nEnter 2 when passing cellNumbers;\nYour choice: ";
+				cin >> opt;
+				if (opt == 1)
+				{
+					cout << "Enter id-from: ";
+					cin >> from;
+					cout << "Enter id-to: ";
+					cin >> to;
+				}
+				else if (opt == 2)
+				{
+					cout << "Enter cellNumber-from: ";
+					cin >> from;
+					cout << "Enter cellNumber-to: ";
+					cin >> to;
+				}
+			} while (opt != 1 and opt != 2);
+			do {
+				cout << "Enter 1 when call has been revceived;\nEnter 2 when call has been missed;\nYour choice: ";
+				cin >> status;
+			} while (status != 1 and status != 2);
+			do {
+				cout << "Enter duration in seconds: ";
+				cin >> duration;
+			} while (duration < 0);
 			
 			if(opt == 1 || opt == 2)
 			x->createConnection(from, to, status, duration, opt);
@@ -131,7 +137,7 @@ void adminMenu(user * userHandler)
 		}
 		case 3:
 		{
-			//my suer menu
+			//my user menu
 			userMenu(userHandler);
 			break;
 		}
@@ -143,14 +149,12 @@ void adminMenu(user * userHandler)
 void userMenu(user * userHandler)
 {
 	cout << "WELCOME USER !\n";
-	//Transaction *x = new Transaction();
+	transaction *x = new transaction();
 	int choice = 1;
 	while (choice)
 	{
 		cout <<
 			"1. Show my calls\n"
-			//"2. Add new call\n"
-			//"3. Show my user menu\n"
 			"0. Exit\n\n"
 			"Your choice: ";
 
@@ -160,6 +164,7 @@ void userMenu(user * userHandler)
 		case 1:
 		{
 			//show my calls
+			x->listCalls(userHandler->getIdUser());
 			break;
 		}
 		case 2:

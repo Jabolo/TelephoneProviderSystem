@@ -136,6 +136,36 @@ int transaction::checkCredentials(string userNam, string psw)
 	}
 }
 
+void transaction::listCalls(int id)
+{
+	MYSQL_RES *idZapytania;
+	MYSQL_ROW wiersz;
+	stringstream sql;
+	sql << "SELECT * FROM connection WHERE id_from =" << id << " or id_to =" << id;
+	if (!mysql_query(db_conn, sql.str().c_str()))
+	{
+		transaction *x = new transaction();
+		
+		idZapytania = mysql_use_result(db_conn);
+		cout << setw(11) << "sndr_cell" << setw(11) << "rcvr_cell"<< setw(11) << "status" << setw(11) << "duration" << endl;
+		while ((wiersz = mysql_fetch_row(idZapytania)) != NULL)
+		{
+				int id_fr = atoi(wiersz[1]), id_t = atoi(wiersz[2]);
+				string s;
+				if (atoi(wiersz[3]) == 1) s += "recieved";
+				else
+					s += "missd call";
+				user* usr1 = x->getUser(id_fr);
+				user* usr2 = x->getUser(id_t);
+				cout << setw(11) << usr1->getCellNumber() << setw(11) << usr2->getCellNumber() << setw(11) << s << setw(11) << wiersz[4];
+			cout << endl;
+		}
+		cout << endl;
+		mysql_free_result(idZapytania);
+		delete x;
+	}
+}
+
 int transaction::hash(string const & s)
 {
 	unsigned long hash = 5381;
@@ -173,6 +203,7 @@ user* transaction::getUser(int id)
 	{
 		cout << "Error, update failed:" << mysql_errno(db_conn) << endl;
 	}
+	delete x;
 }
 
 transaction::~transaction()
