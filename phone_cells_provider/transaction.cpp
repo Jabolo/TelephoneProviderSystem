@@ -58,28 +58,60 @@ void transaction::createConnection(int fr, int t, int stat, int dur)
 	}
 }
 
-
-user * transaction::getUser(int id)
+int transaction::checkCredentials(string userNam, string psw)
 {
-	//user *x = nullptr;
-	//MYSQL_RES* idZapytania;
-	//MYSQL_ROW wiersz;
-	//stringstream sql;
-	//sql << "SELECT * FROM user where id_user =" << id;
+	MYSQL_RES *idZapytania;
+	MYSQL_ROW wiersz;
+	stringstream sql;
+	sql << "SELECT id_user FROM user WHERE username = '"
+		<< userNam << "' and psswrd = '"
+		<< psw << "'";
+	if (!mysql_query(db_conn, sql.str().c_str()))
+		{
+			idZapytania = mysql_use_result(db_conn);
+			if ((wiersz = mysql_fetch_row(idZapytania)) != nullptr)
+			{
+				int id = atoi(wiersz[0]);
+				mysql_free_result(idZapytania);
+				return id;
+			}
+			else return 0;
+		}
+		//[](MYSQL_RES *idZapytania, MYSQL_ROW wiersz, MYSQL *db_conn)->int {idZapytania = mysql_use_result(db_conn); wiersz = mysql_fetch_row(idZapytania); return atoi(wiersz[0]);}(nullptr,nullptr,db_conn);
+	else
+	{
+		cout << mysql_error(db_conn) << endl;
+		return 0;
+	}
+}
 
-	//if (!mysql_query(db_conn, sql.str().c_str()))
-	//{
-	//	x = new user();
-	//	idZapytania = mysql_use_result(db_conn);
-	//	wiersz = mysql_fetch_row(idZapytania);
-	//	x->setId_Account(atoi(wiersz[0]));
-	//	x->setName_Account(wiersz[1]);
-	//	x->setName_Client(wiersz[2]);
-	//	x->setSurname_Client(wiersz[3]);
-	//	x->setMoney(atof(wiersz[4]));
 
-	//}
-	//return x;
+user* transaction::getUser(int id)
+{
+	user *x = nullptr;
+	MYSQL_RES* idZapytania;
+	MYSQL_ROW wiersz;
+	stringstream sql;
+	sql << "SELECT * FROM user where id_user =" << 10 << endl;
+
+	if (!mysql_query(db_conn, sql.str().c_str()))
+	{
+		x = new user();
+		idZapytania = mysql_use_result(db_conn);
+		wiersz = mysql_fetch_row(idZapytania);
+		x->setIdUser(atoi(wiersz[0]));
+		x->setCellNumber(atoi(wiersz[1]));
+		x->setUserName(wiersz[2]);
+		x->setPsswrd(wiersz[3]);
+		x->setPrivileges(atoi(wiersz[4]));
+		mysql_free_result(idZapytania);
+
+		return x;
+	}
+	else
+	{
+		cout << "Error, update failed:" << mysql_errno(db_conn) << endl;
+	}
 }
 
 transaction::~transaction()

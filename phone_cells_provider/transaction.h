@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 
+using namespace std;
 class user; //deklaracja zeby moc wykorzystac usera
 
 class transaction
@@ -10,7 +11,8 @@ public:
 	void createUser(user*);
 	void eraseUser(int id);
 	void createConnection(int, int, int, int);
-	user* getUser(int id);
+	int checkCredentials(string userNam, string psw); //zwróci id pasuj¹cego usera
+	user* getUser(int id); //zwraca uchwyt na usera
 	~transaction();
 
 private:

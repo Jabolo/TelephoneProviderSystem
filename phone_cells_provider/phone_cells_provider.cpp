@@ -24,23 +24,30 @@ int main()
 	else
 		cout << "Connected\n\n";
 
-
+	transaction *x = new transaction();
 	bool isCorrect = true, tryAgain;
 	string login, psswrd;
+	int id, privil;
 	do {
 		cout << "Login:\n";
 		cin >> login;
 		cout << "Password:\n";
 		cin >> psswrd;
-
-		if (isCorrect)
-			adminMenu();
+		if (id = x->checkCredentials(login, psswrd))
+		{
+			cout << "USER id = " << id << endl;
+			user* smbdy = x->getUser(id);
+			if (smbdy->getPrivileges()==1)
+				adminMenu();
+			else
+				userMenu();
+		}
 		else
-			userMenu();
-
-		cout << "Brak dopasowania. Wanna try again?\n 0-NO\t1-YES";
-		cin >> tryAgain;
-	} while (tryAgain = 1);
+		{
+			cout << "Brak dopasowania.\nWanna try again?\n0-NO\t1-YES";
+			cin >> tryAgain;
+		}
+	} while (tryAgain == 1);
 
 	cout << "KONIEC PROGRAMU";
 }
