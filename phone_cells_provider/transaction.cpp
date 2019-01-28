@@ -166,6 +166,29 @@ void transaction::listCalls(int id)
 	}
 }
 
+float transaction::avgDuration()
+{
+	MYSQL_RES *idZapytania;
+	MYSQL_ROW wiersz;
+	stringstream sql;
+	float avg = 0;
+	int counter = 0;
+	sql << "SELECT * FROM connection WHERE id_from";
+	if (!mysql_query(db_conn, sql.str().c_str()))
+	{
+		idZapytania = mysql_use_result(db_conn);
+		while ((wiersz = mysql_fetch_row(idZapytania)) != NULL)
+		{
+			avg += atoi(wiersz[4]);
+			cout << atoi(wiersz[4]) << " ";
+				counter++;
+		}
+		cout << endl;
+		mysql_free_result(idZapytania);
+	}
+	return avg/counter;
+}
+
 int transaction::hash(string const & s)
 {
 	unsigned long hash = 5381;

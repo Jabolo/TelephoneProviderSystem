@@ -80,6 +80,7 @@ void adminMenu(user * userHandler)
 			"1. Add new user\n"
 			"2. Add new call\n"
 			"3. Show my user menu\n"
+			"4. Avg call duration - statistic\n"
 			"0. Exit\n\n"
 			"Your choice: ";
 
@@ -127,9 +128,9 @@ void adminMenu(user * userHandler)
 				cin >> status;
 			} while (status != 1 and status != 2);
 			do {
-				cout << "Enter duration in seconds: ";
+				cout << "Enter duration of received call in seconds: ";
 				cin >> duration;
-			} while (duration < 0);
+			} while (duration < 0 );
 			
 			if(opt == 1 || opt == 2)
 			x->createConnection(from, to, status, duration, opt);
@@ -139,6 +140,12 @@ void adminMenu(user * userHandler)
 		{
 			//my user menu
 			userMenu(userHandler);
+			break;
+		}
+		case 4:
+		{
+			//avg
+			cout << "Average call duration ~=" << x->avgDuration() << endl;
 			break;
 		}
 		}
