@@ -9,6 +9,7 @@ public:
 	transaction();
 	void createUser(user*);
 	void eraseUser(int id);
+	void createConnection(int, int, int, int);
 	user* getUser(int id);
 	~transaction();
 

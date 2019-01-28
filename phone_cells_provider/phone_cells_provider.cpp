@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "transaction.h"
+#include "connection.h"
 #include "user.h"
 
 using namespace std;
@@ -55,6 +56,12 @@ void adminMenu()
 	string psswrd;
 	int privileges;
 
+	int idConnection;
+	int from;
+	int to;
+	int status;
+	int duration;
+
 	cout << "WELCOME ADMIN !\n";
 	int choice = 1;
 	while (choice)
@@ -86,6 +93,15 @@ void adminMenu()
 		case 2:
 		{
 			//add new call
+			cout << "Enter id-from: ";
+			cin >> from;
+			cout << "Enter id-to: ";
+			cin >> to;
+			cout << "Enter status: ";
+			cin >> status;
+			cout << "Enter duration: ";
+			cin >> duration;
+			x->createConnection(from, to, status, duration);
 			break;
 		}
 		case 3:
