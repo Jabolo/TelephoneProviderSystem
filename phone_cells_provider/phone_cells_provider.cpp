@@ -4,8 +4,8 @@
 #include "user.h"
 
 using namespace std;
-void adminMenu();
-void userMenu();
+void adminMenu(user *);
+void userMenu(user *);
 
 MYSQL db_name;
 MYSQL_RES *idZapytania; //przechowalnia wskaźnika na zapytanie
@@ -27,7 +27,7 @@ int main()
 	transaction *x = new transaction();
 	bool isCorrect = true, tryAgain;
 	string login, psswrd;
-	int id, privil;
+	int id;
 	do {
 		cout << "Login:\n";
 		cin >> login;
@@ -37,23 +37,26 @@ int main()
 		{
 			cout << "USER id = " << id << endl;
 			user* smbdy = x->getUser(id);
-			if (smbdy->getPrivileges()==1)
-				adminMenu();
+			if (smbdy->getPrivileges() == 1)
+				adminMenu(smbdy);
 			else
-				userMenu();
+				userMenu(smbdy);
+
+			cout << "Wanna continue?\n0-NO\t1-YES\n";
+				cin >> tryAgain;
 		}
 		else
 		{
-			cout << "Brak dopasowania.\nWanna try again?\n0-NO\t1-YES";
+			cout << "Match not found.\nWanna try again?\n0-NO\t1-YES\n";
 			cin >> tryAgain;
 		}
 	} while (tryAgain == 1);
-
+	delete x;
 	cout << "KONIEC PROGRAMU";
 }
 
 
-void adminMenu()
+void adminMenu(user * userHandler)
 {
 
 	transaction *x = new transaction();
@@ -100,28 +103,44 @@ void adminMenu()
 		case 2:
 		{
 			//add new call
-			cout << "Enter id-from: ";
-			cin >> from;
-			cout << "Enter id-to: ";
-			cin >> to;
+			int opt; //opt = 1 pass id, opt 2= pass cellNembers
+			cout << "Enter 1 when passing ID;\nEnter 2 when passing cellNumbers;\nYour choice: ";
+			cin >> opt;
+			if (opt == 1)
+			{
+				cout << "Enter id-from: ";
+				cin >> from;
+				cout << "Enter id-to: ";
+				cin >> to;
+			}
+			else if (opt == 2)
+			{
+				cout << "Enter cellNumber-from: ";
+				cin >> from;
+				cout << "Enter cellNumber-to: ";
+				cin >> to;
+			}
 			cout << "Enter status: ";
 			cin >> status;
 			cout << "Enter duration: ";
 			cin >> duration;
-			x->createConnection(from, to, status, duration);
+			
+			if(opt == 1 || opt == 2)
+			x->createConnection(from, to, status, duration, opt);
 			break;
 		}
 		case 3:
 		{
 			//my suer menu
-			userMenu();
+			userMenu(userHandler);
 			break;
 		}
 		}
 	}
+	delete x;
 }
 
-void userMenu()
+void userMenu(user * userHandler)
 {
 	cout << "WELCOME USER !\n";
 	//Transaction *x = new Transaction();

@@ -10,8 +10,9 @@ public:
 	transaction();
 	void createUser(user*);
 	void eraseUser(int id);
-	void createConnection(int, int, int, int);
+	void createConnection(int, int, int, int, int cellNum);
 	int checkCredentials(string userNam, string psw); //zwróci id pasuj¹cego usera
+	static int hash(string const& s);
 	user* getUser(int id); //zwraca uchwyt na usera
 	~transaction();
 

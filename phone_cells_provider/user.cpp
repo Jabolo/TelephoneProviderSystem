@@ -2,8 +2,13 @@
 #include "user.h"
 
 user::user(int num, string name, string psw, int prv)
-	: cellNumber(num), userName(name), psswrd(psw), privileges(prv)
+	: cellNumber(num), userName(name), privileges(prv)
 {
+	stringstream hashedPsswrd, fin;
+	string xxx;
+	hashedPsswrd << hex << transaction::hash(psw);
+	xxx = hashedPsswrd.str();
+	this->psswrd = xxx;
 }
 
 void user::setIdUser(int x)

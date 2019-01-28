@@ -24,7 +24,7 @@ void transaction::createUser(user *x)
 		<< x->getPsswrd() << "', '"
 		<< x->getPrivileges() << "')";
 	if (!mysql_query(db_conn, sql.str().c_str()))
-		cout << "New user created !\n";
+		cout << "New user created !\n\n";
 	else
 	{
 		cout << "Error! User hasn't been created!\n" << mysql_error(db_conn)<< endl;
@@ -36,36 +36,87 @@ void transaction::eraseUser(int id)
 	stringstream sql;
 	sql << "DELETE FROM user WHERE id_user = " << id;
 	if (!mysql_query(db_conn, sql.str().c_str()))
-		cout << "User deleted\n";
+		cout << "User deleted\n\n";
 	else
 		cout << "Error when erasing user\n";
 }
 
-void transaction::createConnection(int fr, int t, int stat, int dur)
+void transaction::createConnection(int fr, int t, int stat, int dur, int cellNum)
 {
+	MYSQL_RES *idZapytania;
+	MYSQL_ROW wiersz;
 	stringstream sql;
-	sql << "INSERT INTO connection(id_from, id_to, status, duration)"
-		"values ('"
-		<< fr << "', '"
-		<< t << "', '"
-		<< stat << "', '"
-		<< dur << "')";
-	if (!mysql_query(db_conn, sql.str().c_str()))
-		cout << "Connection created !\n";
+	int from = fr, to = t;
+	if (cellNum == 2) //cellNumbers method of passing
+	{
+		//getting if of "from"usr
+		sql << "SELECT id_user FROM user WHERE cellNumber = '"
+			<< from << "'";
+		if (!mysql_query(db_conn, sql.str().c_str()))
+		{
+			idZapytania = mysql_use_result(db_conn);
+			if ((wiersz = mysql_fetch_row(idZapytania)) != nullptr)
+			{
+				from = atoi(wiersz[0]);
+				mysql_free_result(idZapytania);
+			}
+		}
+		sql.str("");
+
+		//getting id of "to"usr
+		sql << "SELECT id_user FROM user WHERE cellNumber = '"
+			<< to << "'";
+		if (!mysql_query(db_conn, sql.str().c_str()))
+		{
+			idZapytania = mysql_use_result(db_conn);
+			if ((wiersz = mysql_fetch_row(idZapytania)) != nullptr)
+			{
+				to = atoi(wiersz[0]);
+				mysql_free_result(idZapytania);
+			}
+		}
+		sql.str("");
+	}
+	transaction *x = new transaction();
+	user* usr1 = x->getUser(from);
+	user* usr2 = x->getUser(to);
+	//cout << "FROM " << usr1->getUserName() << " TO " << usr2->getUserName() << endl;
+	//checking if these guys exist
+	if (usr1->getUserName() != "" and usr2->getUserName() != "")
+	{
+		//adding new call
+		sql << "INSERT INTO connection(id_from, id_to, status, duration)"
+			"values ('"
+			<< from << "', '"
+			<< to << "', '"
+			<< stat << "', '"
+			<< dur << "')";
+		if (!mysql_query(db_conn, sql.str().c_str()))
+			cout << "Connection created !\n\n";
+		else
+		{
+			cout << "Error! Connection hasnt been created !\n" << mysql_error(db_conn) << endl << endl;;
+		}
+	}
 	else
 	{
-		cout << "Error! Connection hasnt been created !\n" << mysql_error(db_conn) << endl;
+		cout << "Error! At least 1 user with such a credentials does not exist !\n\n";
 	}
+	delete x;
 }
 
 int transaction::checkCredentials(string userNam, string psw)
 {
 	MYSQL_RES *idZapytania;
 	MYSQL_ROW wiersz;
-	stringstream sql;
+	stringstream sql, hashedPsswrd;
+	string xxx;
+
+	hashedPsswrd << hex << hash(psw);
+	xxx = hashedPsswrd.str();
 	sql << "SELECT id_user FROM user WHERE username = '"
 		<< userNam << "' and psswrd = '"
-		<< psw << "'";
+		<< xxx << "'";
 	if (!mysql_query(db_conn, sql.str().c_str()))
 		{
 			idZapytania = mysql_use_result(db_conn);
@@ -85,6 +136,15 @@ int transaction::checkCredentials(string userNam, string psw)
 	}
 }
 
+int transaction::hash(string const & s)
+{
+	unsigned long hash = 5381;
+	for (auto c : s) {
+		hash = (hash << 5) + hash + c; /* hash * 33 + c */
+	}
+	return hash;
+}
+
 
 user* transaction::getUser(int id)
 {
@@ -92,20 +152,21 @@ user* transaction::getUser(int id)
 	MYSQL_RES* idZapytania;
 	MYSQL_ROW wiersz;
 	stringstream sql;
-	sql << "SELECT * FROM user where id_user =" << 10 << endl;
+	sql << "SELECT * FROM user where id_user =" << id << endl;
 
 	if (!mysql_query(db_conn, sql.str().c_str()))
 	{
 		x = new user();
 		idZapytania = mysql_use_result(db_conn);
-		wiersz = mysql_fetch_row(idZapytania);
-		x->setIdUser(atoi(wiersz[0]));
-		x->setCellNumber(atoi(wiersz[1]));
-		x->setUserName(wiersz[2]);
-		x->setPsswrd(wiersz[3]);
-		x->setPrivileges(atoi(wiersz[4]));
-		mysql_free_result(idZapytania);
-
+		if ((wiersz = mysql_fetch_row(idZapytania)) != nullptr)
+		{
+			x->setIdUser(atoi(wiersz[0]));
+			x->setCellNumber(atoi(wiersz[1]));
+			x->setUserName(wiersz[2]);
+			x->setPsswrd(wiersz[3]);
+			x->setPrivileges(atoi(wiersz[4]));
+			mysql_free_result(idZapytania);
+		}
 		return x;
 	}
 	else

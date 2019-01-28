@@ -1,10 +1,15 @@
 #pragma once
 #include "pch.h"
-
+#include "transaction.h"
 using namespace std;
+class transaction;
+
 class user
 {
 public:
+
+	friend int transaction::hash(string const& s);
+
 	user(int = 1000, string = "", string = "", int = 10000);
 	void setIdUser(int);
 	void setCellNumber(int);
