@@ -58,7 +58,7 @@ int main()
 
 void adminMenu(user * userHandler)
 {
-
+	cout <<"Hello "<< *userHandler;
 	transaction *x = new transaction();
 	int idUser;
 	int cellNumber;
@@ -80,7 +80,10 @@ void adminMenu(user * userHandler)
 			"1. Add new user\n"
 			"2. Add new call\n"
 			"3. Show my user menu\n"
-			"4. Avg call duration - statistic\n"
+			"4. Avg call duration\n"
+			"5. Ratio ReceivedToMissed Calls\n"
+			"6. Sum of calls duration\n"
+			"7. Erase user\n"
 			"0. Exit\n\n"
 			"Your choice: ";
 
@@ -145,8 +148,27 @@ void adminMenu(user * userHandler)
 		case 4:
 		{
 			//avg
-			cout << "Average call duration ~=" << x->avgDuration() << endl;
+			cout << "Average call duration ~= " << x->avgDuration() << endl<< endl;
 			break;
+		}
+		case 5:
+		{
+			//ratioRcvdToMissed
+			cout << "Ratio recieved to missed call ~= " << setprecision(3) << x->ratioRcvdToMissd()<<endl<<endl;
+			break;
+		}
+		case 6:
+		{
+			//sumOfDurations
+			cout << "Sum of calls duration time = " << setprecision(3) << x->sumOfCallsDuration() << endl << endl;
+		}
+		case 7:
+		{
+			//erasing user
+			int a;
+			cout << "Enter id user to delete: ";
+			cin >> a;
+			x->eraseUser(a);
 		}
 		}
 	}
@@ -155,6 +177,7 @@ void adminMenu(user * userHandler)
 
 void userMenu(user * userHandler)
 {
+	cout << "Hello " << *userHandler;
 	cout << "WELCOME USER !\n";
 	transaction *x = new transaction();
 	int choice = 1;
@@ -174,15 +197,8 @@ void userMenu(user * userHandler)
 			x->listCalls(userHandler->getIdUser());
 			break;
 		}
-		case 2:
-		{
-			break;
-		}
-		case 3:
-		{
-			break;
-		}
 		}
 
 	}
+	delete x;
 }

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "transaction.h"
 #include "user.h"
+#include <algorithm>
+#include <vector>
 using namespace std;
 
 transaction::transaction()
@@ -80,7 +82,6 @@ void transaction::createConnection(int fr, int t, int stat, int dur, int cellNum
 	transaction *x = new transaction();
 	user* usr1 = x->getUser(from);
 	user* usr2 = x->getUser(to);
-	//cout << "FROM " << usr1->getUserName() << " TO " << usr2->getUserName() << endl;
 	//checking if these guys exist
 	if (usr1->getUserName() != "" and usr2->getUserName() != "")
 	{
@@ -107,6 +108,11 @@ void transaction::createConnection(int fr, int t, int stat, int dur, int cellNum
 
 int transaction::checkCredentials(string userNam, string psw)
 {
+	MYSQL *db_con;
+	db_con = mysql_init(NULL);
+	if (!db_con)
+		cout << "MySQL initialization failed! ";
+	db_con = mysql_real_connect(db_con, "127.0.0.1", "root", "", "cellphoneprovider", 0, NULL, 0);
 	MYSQL_RES *idZapytania;
 	MYSQL_ROW wiersz;
 	stringstream sql, hashedPsswrd;
@@ -118,8 +124,24 @@ int transaction::checkCredentials(string userNam, string psw)
 		<< userNam << "' and psswrd = '"
 		<< xxx << "'";
 	if (!mysql_query(db_conn, sql.str().c_str()))
+			{
+				idZapytania = mysql_use_result(db_conn);
+				if ((wiersz = mysql_fetch_row(idZapytania)) != nullptr)
+				{
+					int id = atoi(wiersz[0]);
+					mysql_free_result(idZapytania);
+					return id;
+				}
+				else return 0;
+			}
+	/*{
+		[](MYSQL *db_con)
+			-> auto
 		{
-			idZapytania = mysql_use_result(db_conn);
+			MYSQL_RES *idZapytania;
+			MYSQL_ROW wiersz;
+
+			idZapytania = mysql_use_result(db_con);
 			if ((wiersz = mysql_fetch_row(idZapytania)) != nullptr)
 			{
 				int id = atoi(wiersz[0]);
@@ -127,8 +149,8 @@ int transaction::checkCredentials(string userNam, string psw)
 				return id;
 			}
 			else return 0;
-		}
-		//[](MYSQL_RES *idZapytania, MYSQL_ROW wiersz, MYSQL *db_conn)->int {idZapytania = mysql_use_result(db_conn); wiersz = mysql_fetch_row(idZapytania); return atoi(wiersz[0]);}(nullptr,nullptr,db_conn);
+		}(db_con);
+	}*/
 	else
 	{
 		cout << mysql_error(db_conn) << endl;
@@ -187,6 +209,57 @@ float transaction::avgDuration()
 		mysql_free_result(idZapytania);
 	}
 	return avg/counter;
+}
+
+float transaction::ratioRcvdToMissd()
+{
+	MYSQL_RES *idZapytania;
+	MYSQL_ROW wiersz;
+	stringstream sql;
+	float rcvd = 0, mssd = 0;
+	sql << "SELECT * FROM connection WHERE id_from";
+	if (!mysql_query(db_conn, sql.str().c_str()))
+	{
+		idZapytania = mysql_use_result(db_conn);
+		while ((wiersz = mysql_fetch_row(idZapytania)) != NULL)
+		{
+			if (atoi(wiersz[3]) == 1)
+				rcvd++;
+			else
+				mssd++;
+		}
+		mysql_free_result(idZapytania);
+	}
+	return float(rcvd/mssd);
+}
+
+int transaction::sumOfCallsDuration()
+{
+	vector <int> tablica;
+	MYSQL_RES *idZapytania;
+	MYSQL_ROW wiersz;
+	stringstream sql;
+	int sum = 0;
+	sql << "SELECT * FROM connection WHERE id_from";
+	if (!mysql_query(db_conn, sql.str().c_str()))
+	{
+		idZapytania = mysql_use_result(db_conn);
+		while ((wiersz = mysql_fetch_row(idZapytania)) != NULL)
+		{
+			//sum += atoi(wiersz[3]);
+			int num = atoi(wiersz[3]);
+			tablica.push_back(num);
+		}
+		mysql_free_result(idZapytania);
+	}
+	//sortowanie z lambda
+	std::sort(tablica.begin(), tablica.end(), [](int a, int b) {
+		return a > b;
+	});
+	for (std::vector<int>::iterator it = tablica.begin(); it != tablica.end(); ++it)
+		sum += *it;
+
+	return sum;
 }
 
 int transaction::hash(string const & s)

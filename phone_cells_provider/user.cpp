@@ -65,3 +65,7 @@ user::~user()
 {
 }
 
+ostream & operator<<(ostream &out, const user &y)
+{
+	return out<< y.getUserName() << ".Your cell num: " << y.getCellNumber() << endl;
+}
