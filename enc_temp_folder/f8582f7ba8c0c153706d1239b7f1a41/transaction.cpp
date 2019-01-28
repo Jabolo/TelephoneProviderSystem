@@ -7,7 +7,6 @@ using namespace std;
 
 transaction::transaction()
 {
-	//sdasdsa
 	db_conn = mysql_init(NULL);
 	if (!db_conn)
 		cout << "MySQL initialization failed! ";
